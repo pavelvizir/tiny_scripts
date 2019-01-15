@@ -1,0 +1,13 @@
+[Unit]
+Description=get_network_ips_arp_scan
+
+[Service]
+WorkingDirectory=/root
+ExecStart=/root/get_network_ips_arp_scan.py
+Restart=always
+RestartSec=10
+SyslogIdentifier=get_network_ips_arp_scan
+User=root
+
+[Install]
+WantedBy=multi-user.target

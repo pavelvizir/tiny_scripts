@@ -1,0 +1,23 @@
+﻿declare @listoflogins table (login varchar(50),pass varchar(50),fullname varchar(100))
+declare @currentlogin varchar(50)
+declare @currentpass varchar(50)
+declare @loginstring varchar(2000)
+-- Pass = '< /dev/urandom tr -dc _A-Z-a-z-0-9 | head -c${1:-32};echo;'.
+insert into @listoflogins (login,pass,fullname) values
+('IvanovII','70jJ7Do1','Иванов Иван Иванович'),
+('IvanovII','mRuE2d9g','Иванов Иван Иванович')
+
+while exists (select login from @listoflogins)
+begin
+	set @currentlogin = (select top 1 login from @listoflogins order by login)
+	set @currentpass = (select top 1 pass from @listoflogins order by login)
+	set @loginstring = 'USE [master]; CREATE LOGIN [' + @currentlogin + '] WITH PASSWORD=N''' + @currentpass + ''', DEFAULT_DATABASE=[master], CHECK_EXPIRATION=OFF, CHECK_POLICY=OFF;
+USE [db1]; CREATE USER [' + @currentlogin + '] FOR LOGIN [' + @currentlogin + ']; EXEC sp_addrolemember N''automation_users'', N''' + @currentlogin + '''; EXEC sp_addrolemember N''users'', N''' + @currentlogin + ''';
+USE [db2]; CREATE USER [' + @currentlogin + '] FOR LOGIN [' + @currentlogin + ']; EXEC sp_addrolemember N''users'', N''' + @currentlogin + ''';
+USE [db3]; CREATE USER [' + @currentlogin + '] FOR LOGIN [' + @currentlogin + ']; EXEC sp_addrolemember N''users'', N''' + @currentlogin + ''';
+USE [db4]; CREATE USER [' + @currentlogin + '] FOR LOGIN [' + @currentlogin + ']; EXEC sp_addrolemember N''automation_users'', N''' + @currentlogin + '''; EXEC sp_addrolemember N''users'', N''' + @currentlogin + ''';
+USE [db5]; CREATE USER [' + @currentlogin + '] FOR LOGIN [' + @currentlogin + ']; EXEC sp_addrolemember N''xx'', N''' + @currentlogin + ''';'
+	print @loginstring
+	exec(@loginstring)
+	delete from @listoflogins where login = @currentlogin
+end
